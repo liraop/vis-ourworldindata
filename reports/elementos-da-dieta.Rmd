@@ -1,0 +1,26 @@
+---
+title: "Componentes da dieta"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+diet_components = read_csv(here("data/daily-caloric-supply-derived-from-carbohydrates-protein-and-fat.csv")) %>% 
+    rename(country = Entity, 
+           code = Code, 
+           year = Year)
+
+geography = read_csv(here("data/Data Geographies - v1 - by Gapminder - List of countries.csv"))
+
+```
+
+
+```{r}
+
+```
+
+

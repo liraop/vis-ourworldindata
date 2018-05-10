@@ -1,0 +1,52 @@
+---
+title: "Proteina animal e renda"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+```
+
+```{r}
+animal_protein = read_csv(
+    here("data/share-of-calories-from-animal-protein-vs-gdp-per-capita.csv"),
+    col_types = cols(
+        Entity = col_character(),
+        Code = col_character(),
+        Year = col_integer(),
+        `Share of total calories from animal protein (%)` = col_double(),
+        `GDP per capita (2011US$, PPP) ($)` = col_integer(),
+        `Total population (Gapminder)` = col_integer())) %>%
+    rename(
+        country = Entity,
+        code = Code,
+        year = Year,
+        share_animal_protein = `Share of total calories from animal protein (%)`,
+        gdp = `GDP per capita (2011US$, PPP) ($)`,
+        population = `Total population (Gapminder)`
+    )
+
+geography = read_csv(here("data/Data Geographies - v1 - by Gapminder - List of countries.csv"))
+
+protein_recent = animal_protein %>% 
+    filter(year > 1999, year < 2014, complete.cases(.)) %>% 
+    mutate(code = tolower(code)) %>% 
+    left_join(geography, by = c("code" = "geo"))
+
+```
+
+
+```{r}
+protein_recent %>% 
+    filter(year == 2013) %>% 
+    ggplot(mapping = aes(x = six_regions, 
+                         y = share_animal_protein, 
+                         size = population,
+                         color = six_regions)) + 
+    geom_point() + 
+    coord_flip()
+```
+
+
