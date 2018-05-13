@@ -49,4 +49,32 @@ protein_recent %>%
     coord_flip()
 ```
 
+```{r}
+# income group 
+# country
+# população
+
+protein_recent %>% 
+    filter(year == 2013) %>% 
+    ggplot() + 
+    geom_point(mapping = aes(x = gdp, 
+                             y = share_animal_protein, 
+                             shape = six_regions, 
+                             size = population)) 
+```
+
+```{r}
+protein_recent %>% 
+    filter(year == 2013) %>% 
+    ggplot() + 
+    geom_point(mapping = aes(x = reorder(six_regions, share_animal_protein, median), 
+                             y = share_animal_protein, 
+                             color = (gdp)), 
+               alpha = .6, 
+               size = 2) + 
+    coord_flip() + 
+    viridis::scale_color_viridis()
+
+```
+
 

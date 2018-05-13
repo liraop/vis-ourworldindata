@@ -3,24 +3,72 @@ title: "Componentes da dieta"
 output: html_notebook
 ---
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(tidyverse)
 library(here)
+library(viridis)
+theme_set(theme_bw())
 ```
 
 ```{r}
-diet_components = read_csv(here("data/daily-caloric-supply-derived-from-carbohydrates-protein-and-fat.csv")) %>% 
-    rename(country = Entity, 
-           code = Code, 
-           year = Year)
-
-geography = read_csv(here("data/Data Geographies - v1 - by Gapminder - List of countries.csv"))
-
+diets = read_csv(here("data/diet_components-wide.csv"), 
+                 col_types = cols(
+                     .default = col_character(),
+                     year = col_integer(),
+                     `Animal protein (kilocalories per person per day)` = col_double(),
+                     `Plant protein (kilocalories per person per day)` = col_double(),
+                     `Fat (kilocalories per person per day)` = col_double(),
+                     `Carbohydrates (kilocalories per person per day)` = col_double(),
+                     kcal_per_day = col_integer(),
+                     `Animal protein share` = col_double(),
+                     `Plant share` = col_double(),
+                     `Fat share` = col_double(),
+                     `Carbo share` = col_double(),
+                     Latitude = col_double(),
+                     Longitude = col_double()
+                 ))
 ```
 
+## Sua missão
+
+Visualizar, para a última medição que temos dos países, se existe associação entre a proporção (share) de proteína animal e gordura na dieta de uma pessoa deste país, e se existe também associação entre a quantidade de proteína e (i) quantos kcal por dia as pessoas comem no país, e (ii) que proporção das kcal na dieta vem de plantas. 
+
+No processo, gere ao menos 4 visualizações, todas usando pontos como marcas, mas que fazem uso diferente dos canais dos pontos, e ressalte qual das 4 em sua opinião é mais eficaz para visualizar a relação entre as 4 variáveis na ordem de prioridade que definimos acima. 
+
+
+## Exemplo de possibiidade para visualizar o ano mais recente:
 
 ```{r}
-
+diets %>% 
+    group_by(country) %>% 
+    filter(year == max(year)) %>% 
+    ggplot(aes(x = four_regions, 
+               y = `Animal protein share`, 
+               size = kcal_per_day,
+               color = `Fat share`)) + 
+    geom_jitter(alpha = .4, width = .2)
 ```
 
+## Bônus: cada país é uma série temporal
+
+```{r}
+diets %>% 
+    group_by(country) %>% 
+    filter(n() > 5) %>% 
+    mutate(cor_proteina_carbo = cor(`Animal protein (kilocalories per person per day)`, 
+                                    `Carbohydrates (kilocalories per person per day)`, 
+                                    method = "kendall"), 
+           descricao_cor = case_when(
+               cor_proteina_carbo >= 0.1 ~ "Cor. positiva", 
+               cor_proteina_carbo <= -0.1 ~ "Cor. negativa", 
+               TRUE ~ "Sem cor.")
+    ) %>%
+    ggplot(aes(x = `Animal protein (kilocalories per person per day)`, 
+               y = `Carbohydrates (kilocalories per person per day)`, 
+               group = country,
+               color = cor_proteina_carbo)) + 
+    geom_line(size = 1, alpha = .4)  + 
+    scale_color_viridis()+ 
+    facet_grid(descricao_cor ~ .)
+```
 
