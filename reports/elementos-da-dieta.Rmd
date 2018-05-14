@@ -19,8 +19,8 @@ diets = read_csv(here("data/diet_components-wide.csv"),
                      `Plant protein (kilocalories per person per day)` = col_double(),
                      `Fat (kilocalories per person per day)` = col_double(),
                      `Carbohydrates (kilocalories per person per day)` = col_double(),
-                     kcal_per_day = col_integer(),
-                     `Animal protein share` = col_double(),
+                     kcal_per_day = col_double(),
+                    `Animal protein share` = col_double(),
                      `Plant share` = col_double(),
                      `Fat share` = col_double(),
                      `Carbo share` = col_double(),
@@ -47,6 +47,35 @@ diets %>%
                size = kcal_per_day,
                color = `Fat share`)) + 
     geom_jitter(alpha = .4, width = .2)
+```
+
+## Variação 1
+Mudança apenas em saturação e espaçamento.
+
+```{r}
+diets %>% 
+    group_by(country) %>% 
+    filter(year == max(year)) %>% 
+    ggplot(aes(x = four_regions, 
+               y = `Animal protein share`, 
+               size = kcal_per_day,
+               color = `Fat share`)) + 
+    geom_jitter(alpha = .8, width = .15)
+```
+
+### Variação 2
+
+```{r}
+diets %>% 
+    group_by(country) %>% 
+    filter(year == max(year)) %>% 
+    ggplot(aes(x = four_regions, 
+               y = `Animal protein share`, 
+               size = kcal_per_day,
+               color = four_regions)) + 
+    geom_dotplot(binwidth = .15) +
+    scale_x_discrete() +
+    scale_fill_brewer(palette="Blue")
 ```
 
 ## Bônus: cada país é uma série temporal
